@@ -15,7 +15,7 @@ namespace JalgpalliMang
         //насколько происходит передвижение по x,y
         private double _vx, _vy;
         //
-        public Team? Team { get; set; } = null;
+        public Team Team { get; set; } = null;
         //постоянное значение 
         private const double MaxSpeed = 5;
         private const double MaxKickSpeed = 25;
@@ -44,12 +44,12 @@ namespace JalgpalliMang
         //получение позиции игрока до мяча
         public (double, double) GetAbsolutePosition()
         {
-            return Team!.Game.GetPositionForTeam(Team, X, Y);
+            return Team.Game.GetPositionForTeam(Team, X, Y);
         }
         //получаем дистанцию до мяча
         public double GetDistanceToBall()
         {
-            var ballPosition = Team!.GetBallPosition();
+            var ballPosition = Team.GetBallPosition();
             var dx = ballPosition.Item1 - X;
             var dy = ballPosition.Item2 - Y;
             return Math.Sqrt(dx * dx + dy * dy);
@@ -57,7 +57,7 @@ namespace JalgpalliMang
         //движение игрока к мячу
         public void MoveTowardsBall()
         {
-            var ballPosition = Team!.GetBallPosition();
+            var ballPosition = Team.GetBallPosition();
             var dx = ballPosition.Item1 - X;
             var dy = ballPosition.Item2 - Y;
             var ratio = Math.Sqrt(dx * dx + dy * dy) / MaxSpeed;

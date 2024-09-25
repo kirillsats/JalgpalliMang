@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace JalgpalliMang
 {
-    internal class mainClass
+    public class mainClass
     {
-        main
+        public static void Main(string[] args)
+        {
+
+        }
     }
 }
