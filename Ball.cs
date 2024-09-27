@@ -1,48 +1,37 @@
-﻿public class Ball
+﻿using System;
+
+namespace JalgpalliMang
 {
-    // Координата X 
-    public double X { get; private set; }
-
-    // Координата Y 
-    public double Y { get; private set; }
-
-    // Скорость мяча по осям X и Y
-    private double _vx, _vy;
-
-    // Игра, к которой принадлежит мяч
-    private Game _game;
-
-    // Конструктор для создания мяча с заданными координатами и игрой
-    public Ball(double x, double y, Game game)
+    public class Ball
     {
-        _game = game; // Сохраняем ссылку на игру
-        X = x; // Устанавливаем начальную координату X
-        Y = y; // Устанавливаем начальную координату Y
-    }
+        public float X { get; private set; }
+        public float Y { get; private set; }
+        private float directionX;
+        private float directionY;
 
-    // Устанавливает скорость мяча
-    public void SetSpeed(double vx, double vy)
-    {
-        _vx = vx; // Устанавливаем скорость по оси X
-        _vy = vy; // Устанавливаем скорость по оси Y
-    }
-
-    // Двигает мяч
-    public void Move()
-    {
-        double newX = X + _vx; // Вычисляем новую координату X
-        double newY = Y + _vy; // Вычисляем новую координату Y
-
-        // Проверяем, находится ли новая позиция мяча в пределах стадиона
-        if (_game.Stadium.IsIn(newX, newY))
+        public Ball(float x, float y)
         {
-            X = newX; // Обновляем координату X
-            Y = newY; // Обновляем координату Y
+            X = x;
+            Y = y;
+            Random rand = new Random();
+            directionX = (float)(rand.NextDouble() * 2 - 1); // Случайное направление по X
+            directionY = (float)(rand.NextDouble() * 2 - 1); // Случайное направление по Y
         }
-        else
+
+        public void Move()
         {
-            _vx = 0; // Останавливаем движение по оси X
-            _vy = 0; // Останавливаем движение по оси Y
+            X += directionX * 0.5f; // Скорость мяча
+            Y += directionY * 0.5f;
+
+            // Проверка границ
+            if (X <= 1 || X >= 33) // Учитываем границы стадиона
+            {
+                directionX = -directionX; // Отскок от стенки
+            }
+            if (Y <= 1 || Y >= 23) // Учитываем границы стадиона
+            {
+                directionY = -directionY; // Отскок от стенки
+            }
         }
     }
 }

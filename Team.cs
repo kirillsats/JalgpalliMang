@@ -4,21 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace JalgpalliMang
 {
     public class Team
-    {   //лист состоящий из игроков
+    {
         public List<Player> Players { get; } = new List<Player>();
-        //имя команды
         public string Name { get; private set; }
-        //путь к игре
         public Game Game { get; set; }
 
         public Team(string name)
         {
             Name = name;
         }
-        //начало игры
+
+        // Начинаем игру
+        // Alustame mängu
         public void StartGame(int width, int height)
         {
             Random rnd = new Random();
@@ -27,27 +28,35 @@ namespace JalgpalliMang
                 player.SetPosition(
                     rnd.NextDouble() * width,
                     rnd.NextDouble() * height
-                    );
+                );
             }
         }
-        //добавление игрока
+
+        // Добавляем игрока в команду
+        // Lisame mängija meeskonda
         public void AddPlayer(Player player)
         {
             if (player.Team != null) return;
             Players.Add(player);
             player.Team = this;
         }
-        //получаем позицию мяча
+
+        // Получаем позицию мяча
+        // Saame palli positsiooni
         public (double, double) GetBallPosition()
         {
             return Game.GetBallPositionForTeam(this);
         }
-        //скорость мяча
+
+        // Устанавливаем скорость мяча
+        // Määrame palli kiirus
         public void SetBallSpeed(double vx, double vy)
         {
             Game.SetBallSpeedForTeam(this, vx, vy);
         }
-        //находит ближайшего игрока к мячу
+
+        // Получаем ближайшего игрока к мячу
+        // Saame palli poole lähima mängija
         public Player GetClosestPlayerToBall()
         {
             Player closestPlayer = Players[0];
@@ -64,7 +73,9 @@ namespace JalgpalliMang
 
             return closestPlayer;
         }
-        //движение
+
+        // Двигаем команду
+        // Liigutame meeskonda
         public void Move()
         {
             GetClosestPlayerToBall().MoveTowardsBall();

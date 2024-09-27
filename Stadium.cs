@@ -4,23 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JalgpalliMang
+public class Stadium
 {
-    public class Stadium
+    public Stadium(int width, int height)
     {
-        public Stadium(int width, int height)
-        {
-            Width = width;
-            Height = height;
-        }
+        Width = width;
+        Height = height;
+    }
 
-        public int Width { get; }
+    public int Width { get; }
+    public int Height { get; }
 
-        public int Height { get; }
-
-        public bool IsIn(double x, double y)
-        {
-            return x >= 0 && x < Width && y >= 0 && y < Height;
-        }
+    // Проверяем, находится ли точка в пределах стадиона
+    // Kontrollime, kas punkt on staadioni piires
+    public bool IsIn(double x, double y)
+    {
+        return x >= 0 && x < Width && y >= 0 && y < Height;
     }
 }
+
