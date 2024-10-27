@@ -1,4 +1,7 @@
-﻿namespace JalgpalliMang
+﻿using System;
+using System.Collections.Generic;
+
+namespace Jalgpali
 {
     public class Game
     {
@@ -10,30 +13,73 @@
         public Game(Team homeTeam, Team awayTeam, Stadium stadium)
         {
             HomeTeam = homeTeam;
+            homeTeam.Game = this;
             AwayTeam = awayTeam;
+            awayTeam.Game = this;
             Stadium = stadium;
-            Ball = new Ball(stadium.Width / 2, stadium.Height / 2); // Изначальное положение мяча в центре
         }
 
         public void Start()
         {
-            // Логика начала игры
+            Ball = new Ball(Stadium.Width / 2, Stadium.Height / 2, this);
+            HomeTeam.StartGame(Stadium.Width, Stadium.Height);
+            AwayTeam.StartGame(Stadium.Width, Stadium.Height);
+        }
+
+        private (double, double) GetPositionForAwayTeam(double x, double y)
+        {
+            return (Stadium.Width - x, Stadium.Height - y);
+        }
+
+        public (double, double) GetPositionForTeam(Team team, double x, double y)
+        {
+            return team == HomeTeam ? (x, y) : GetPositionForAwayTeam(x, y);
+        }
+
+        public (double, double) GetBallPositionForTeam(Team team)
+        {
+            return GetPositionForTeam(team, Ball.X, Ball.Y);
+        }
+
+        public void SetBallSpeedForTeam(Team team, double vx, double vy)
+        {
+            if (team == HomeTeam)
+            {
+                Ball.SetSpeed(vx, vy);
+            }
+            else
+            {
+                Ball.SetSpeed(-vx, -vy);
+            }
         }
 
         public void Move()
         {
-            // Движение мяча
+            HomeTeam.Move();
+            AwayTeam.Move();
             Ball.Move();
+            CheckGoal();
+        }
 
-            // Движение игроков
-            foreach (var player in HomeTeam.Players)
+        private void CheckGoal()
+        {
+            // Check for goals
+            if (Ball.X <= 0) // Ball hit home team's goal
             {
-                player.Move();
+                AwayTeam.ScoreGoal();
+                ResetBall();
             }
-            foreach (var player in AwayTeam.Players)
+            else if (Ball.X >= Stadium.Width - 1) // Ball hit away team's goal
             {
-                player.Move();
+                HomeTeam.ScoreGoal();
+                ResetBall();
             }
+        }
+
+        private void ResetBall()
+        {
+            Ball.SetPosition(Stadium.Width / 2, Stadium.Height / 2);
+            Ball.SetSpeed(0, 0);
         }
     }
 }

@@ -1,36 +1,61 @@
-﻿using System;
+﻿
+using System;
 
-namespace JalgpalliMang
+namespace Jalgpali
 {
     public class Ball
     {
-        public float X { get; private set; }
-        public float Y { get; private set; }
-        private float directionX;
-        private float directionY;
+        public double X { get; private set; }
+        public double Y { get; private set; }
 
-        public Ball(float x, float y)
+        private double _vx, _vy;
+
+        private Game _game;
+
+        public Ball(double x, double y, Game game)
+        {
+            _game = game;
+            X = x;
+            Y = y;
+        }
+
+        public void SetPosition(double x, double y)
         {
             X = x;
             Y = y;
-            Random rand = new Random();
-            directionX = (float)(rand.NextDouble() * 2 - 1); // Случайное направление по X
-            directionY = (float)(rand.NextDouble() * 2 - 1); // Случайное направление по Y
+        }
+
+        public void SetSpeed(double vx, double vy)
+        {
+            _vx = vx;
+            _vy = vy;
         }
 
         public void Move()
         {
-            X += directionX * 0.5f; // Скорость мяча
-            Y += directionY * 0.5f;
+            double newX = X + _vx;
+            double newY = Y + _vy;
 
-            // Проверка границ
-            if (X <= 1 || X >= 33) // Учитываем границы стадиона
+            if (_game.Stadium.IsIn(newX, newY)) // Проверка, нет ли столкновений со стенами
             {
-                directionX = -directionX; // Отскок от стенки
+                X = newX;
+                Y = newY;
             }
-            if (Y <= 1 || Y >= 23) // Учитываем границы стадиона
+            else
             {
-                directionY = -directionY; // Отскок от стенки
+                if (newX < 0 || newX >= _game.Stadium.Width) // Рикошет от стены
+                {
+                    _vx = -_vx; // Измените направление вдоль оси X
+                    newX = X + _vx; // движение шарика на 1 пиксель
+                    X = newX < 0 ? 1 : newX >= _game.Stadium.Width ? _game.Stadium.Width - 1 : newX;
+                }
+
+                if (newY < 0 || newY >= _game.Stadium.Height) // Рикошет от стены
+                {
+                    _vy = -_vy; // Измените направление вдоль оси Y
+                    newY = Y + _vy; // движение шарика на 1 пиксель
+                    Y = newY < 0 ? 1 : newY >= _game.Stadium.Height ? _game.Stadium.Height - 1 : newY;
+                }
             }
         }
     }

@@ -3,141 +3,117 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace JalgpalliMang
+namespace Jalgpali
 {
-    public class mainClass
+    class Program
     {
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
-            // Создаем стадион
-            // Loome staadioni
-            Stadium stadium = new Stadium(35, 25);
+            Stadium stadium = new Stadium(40, 20); // Увеличиваем размер стадиона
 
-            // Создаем команды
-            // Loome meeskonnad
-            Team homeTeam = new Team("Kodumeeskond");
-            Team awayTeam = new Team("Võõrsil meeskond");
 
-            // Добавляем игроков в команды
-            // Lisame mängijad meeskondadesse
-            for (int i = 1; i <= 11; i++) // 11 игроков в каждой команде
+            Team homeTeam = new Team("Home");
+            Team awayTeam = new Team("Away");
+
+
+            for (int i = 0; i < 11; i++)// Добавляем игроков в команды
             {
-                homeTeam.AddPlayer(new Player($"Mängija kodus {i}"));
-                awayTeam.AddPlayer(new Player($"Külalismängija {i}"));
+                homeTeam.AddPlayer(new Player($"HomePlayer{i + 1}"));
+                awayTeam.AddPlayer(new Player($"AwayPlayer{i + 1}"));
             }
 
-            // Создаем игру
-            // Loome mängu
+
             Game game = new Game(homeTeam, awayTeam, stadium);
             game.Start();
 
-            // Отображение стадиона
-            // Staadoni kuvamine
-            DisplayStadium(game);
 
-            // Симуляция игры
-            // Mängu simuleerimine
-            while (true) // Бесконечный цикл для продолжения игры
-            // Lõputu tsükkel mängu jätkamiseks
+            while (true)// Бесконечный игровой цикл
             {
-                // Движение команд и мяча
-                // Meeskondade ja palli liikumine
                 game.Move();
+                PrintGameState(game);
+                System.Threading.Thread.Sleep(500); // Задержка для визуализации
 
-                // Отображение обновленного стадиона
-                // Kuvame uuendatud staadioni
-                DisplayStadium(game);
-                DisplayGameStatus(game);
-                System.Threading.Thread.Sleep(500); // Пауза для видимости
-                // Paus nähtavuse jaoks
-            }
-        }
 
-        static void DisplayStadium(Game game)
-        {
-            // Обводим стадион символами '*'
-            // Ümbritseme staadioni sümbolitega '*'
-            for (int y = 0; y < game.Stadium.Height; y++)
-            {
-                for (int x = 0; x < game.Stadium.Width; x++)
+                if (Console.KeyAvailable)// Проверка нажатия клавиши для выхода
                 {
-                    // Границы стадиона
-                    // Staadioni piirid
-                    if (y == 0 || y == game.Stadium.Height - 1)
+                    var key = Console.ReadKey(true);
+                    if (key.Key == ConsoleKey.Escape) // Выход по нажатию ESC
                     {
-                        Console.Write('*');
-                    }
-                    else if (x == 0 || x == game.Stadium.Width - 1)
-                    {
-                        Console.Write('*');
-                    }
-                    // Горизонтальная линия в середине стадиона
-                    // Horisontaalne joon staadioni keskel
-                    else if (y == game.Stadium.Height / 2)
-                    {
-                        Console.Write('-'); // Линия разделения
-                    }
-                    else
-                    {
-                        // Проверяем, где находятся игроки
-                        // Kontrollime, kus mängijad asuvad
-                        char playerChar = ' '; // Пустое пространство по умолчанию
-
-                        // Проверяем игроков домашней команды
-                        // Kontrollime kodumeeskonna mängijaid
-                        for (int i = 0; i < game.HomeTeam.Players.Count; i++)
-                        {
-                            var player = game.HomeTeam.Players[i];
-                            int playerX = (int)player.X;
-                            int playerY = (int)player.Y;
-                            if (x == playerX && y == playerY)
-                            {
-                                playerChar = (char)('1' + i); // Номера от 1 до 11
-                            }
-                        }
-
-                        // Проверяем игроков гостевой команды
-                        // Kontrollime külaliste meeskonna mängijaid
-                        for (int i = 0; i < game.AwayTeam.Players.Count; i++)
-                        {
-                            var player = game.AwayTeam.Players[i];
-                            int playerX = (int)player.X;
-                            int playerY = (int)player.Y;
-                            if (x == playerX && y == playerY)
-                            {
-                                playerChar = (char)('6' + i); // Номера от 6 до 16
-                            }
-                        }
-
-                        // Проверяем, где находится мяч
-                        // Kontrollime, kus pall asub
-                        if (x == (int)game.Ball.X && y == (int)game.Ball.Y)
-                        {
-                            Console.Write('O'); // Символ мяча
-                        }
-                        else
-                        {
-                            Console.Write(playerChar); // Выводим символ игрока или пробел
-                        }
+                        break;
                     }
                 }
-                Console.WriteLine(); // Переход на новую строку
             }
         }
 
-        static void DisplayGameStatus(Game game)
+        static void PrintGameState(Game game)
         {
-            // Отображаем позицию мяча
-            // Kuvame palli positsiooni
-            Console.WriteLine($"Palli asukoht: ({game.Ball.X}, {game.Ball.Y})");
-            Console.WriteLine();
+            Console.Clear();
+
+            int width = game.Stadium.Width;
+            int height = game.Stadium.Height;
+            char[,] field = new char[height, width];
+
+
+            for (int y = 0; y < height; y++)//создаём поле
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    field[y, x] = '.'; //пустота
+                }
+            }
+
+
+            foreach (var player in game.HomeTeam.Players)//игроки домашней команды
+            {
+                int playerX = (int)player.X;
+                int playerY = (int)player.Y;
+                if (playerX >= 0 && playerX < width && playerY >= 0 && playerY < height)
+                {
+                    field[playerY, playerX] = 'H';
+                }
+            }
+
+
+            foreach (var player in game.AwayTeam.Players)//игроки выездной команды
+            {
+                int playerX = (int)player.X;
+                int playerY = (int)player.Y;
+                if (playerX >= 0 && playerX < width && playerY >= 0 && playerY < height)
+                {
+                    field[playerY, playerX] = 'A';
+                }
+            }
+
+
+            int ballX = (int)game.Ball.X;//показываем мяч
+            int ballY = (int)game.Ball.Y;
+            if (ballX >= 0 && ballX < width && ballY >= 0 && ballY < height)
+            {
+                field[ballY, ballX] = 'O';
+            }
+
+            // Отображаем ворота
+            field[height / 2 - 1, 0] = 'G'; //ворота домашней
+            field[height / 2, 0] = 'G';
+            field[height / 2 + 1, 0] = 'G';
+            field[height / 2 - 1, width - 1] = 'G'; //ворота выездной
+            field[height / 2, width - 1] = 'G';
+            field[height / 2 + 1, width - 1] = 'G';
+
+            // Выводим поле
+            Console.WriteLine($"Score: {game.HomeTeam.Name} {game.HomeTeam.Score} - {game.AwayTeam.Score} {game.AwayTeam.Name}\n");
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    Console.Write(field[y, x] + " ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 
-    
-
-    
 }
-

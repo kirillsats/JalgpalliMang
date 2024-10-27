@@ -4,19 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace JalgpalliMang
+
+namespace Jalgpali
 {
     public class Player
     {
-
         public string Name { get; }
         public double X { get; private set; }
         public double Y { get; private set; }
         private double _vx, _vy;
-        public Team Team { get; set; } = null;
+        public Team? Team { get; set; } = null;
+
         private const double MaxSpeed = 5;
         private const double MaxKickSpeed = 25;
         private const double BallKickDistance = 10;
+
         private Random _random = new Random();
 
         public Player(string name)
@@ -32,50 +34,45 @@ namespace JalgpalliMang
             Team = team;
         }
 
-        // Устанавливаем позицию игрока
-        // Määrame mängija positsiooni
         public void SetPosition(double x, double y)
         {
             X = x;
             Y = y;
         }
 
-        // Получаем абсолютную позицию игрока
-        // Saame mängija absoluutse positsiooni
         public (double, double) GetAbsolutePosition()
         {
-            return Team.Game.GetPositionForTeam(Team, X, Y);
+            return Team!.Game.GetPositionForTeam(Team, X, Y);
         }
 
-        // Получаем расстояние до мяча
-        // Saame kauguse pallini
         public double GetDistanceToBall()
         {
-            var ballPosition = Team.GetBallPosition();
+            var ballPosition = Team!.GetBallPosition();
             var dx = ballPosition.Item1 - X;
             var dy = ballPosition.Item2 - Y;
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
-        // Двигаемся к мячу
-        // Liigume palli poole
         public void MoveTowardsBall()
         {
-            var ballPosition = Team.GetBallPosition();
+            var ballPosition = Team!.GetBallPosition();
             var dx = ballPosition.Item1 - X;
             var dy = ballPosition.Item2 - Y;
-            var ratio = Math.Sqrt(dx * dx + dy * dy) / MaxSpeed;
-            _vx = dx / ratio;
-            _vy = dy / ratio;
+            var distance = Math.Sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) // Prevent division by zero
+            {
+                _vx = (dx / distance) * MaxSpeed;
+                _vy = (dy / distance) * MaxSpeed;
+            }
         }
 
-        // Двигаем игрока
-        // Liigutame mängijat
         public void Move()
         {
             if (Team.GetClosestPlayerToBall() != this)
             {
-                _vx = _vy = 0;
+                _vx = 0;
+                _vy = 0;
             }
 
             if (GetDistanceToBall() < BallKickDistance)
@@ -91,14 +88,8 @@ namespace JalgpalliMang
             var newAbsolutePosition = Team.Game.GetPositionForTeam(Team, newX, newY);
             if (Team.Game.Stadium.IsIn(newAbsolutePosition.Item1, newAbsolutePosition.Item2))
             {
-                X = newX;
-                Y = newY;
-            }
-            else
-            {
-                _vx = _vy = 0;
+                SetPosition(newX, newY);
             }
         }
-
     }
 }
